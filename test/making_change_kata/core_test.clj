@@ -35,13 +35,6 @@
   (is (= {1 1, 5 1, 10 1, 25 1}
          (amount->coins us-coins 41))))
 
-(defspec amount-of-change-equals-original-amount
-  100
-  (prop/for-all [amount gen/pos-int]
-                (let [coins (amount->coins us-coins amount)
-                      coins-amount (coins->amount coins)]
-                  (= amount coins-amount))))
-
 
 
 ;; Non-spanning coins
@@ -63,3 +56,13 @@
 (deftest number-of-coins-returned-is-minimal
   (is (= {20 2}
          (amount->coins tricky-coins 40))))
+
+(defspec amount-of-coins-equals-original-amount
+  10
+  (prop/for-all [available-coins (gen/not-empty (gen/vector gen/s-pos-int))]
+                (let [amount (->> available-coins
+                                  (map (partial * (inc (rand-int (count available-coins)))))
+                                  (reduce + 0))
+                      coins (amount->coins3 us-coins amount)
+                      coins-amount (coins->amount coins)]
+                  (= amount coins-amount))))
